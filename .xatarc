@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://Dhawal-Shinde-s-workspace-85gojg.eu-central-1.xata.sh/db/ScreenDrop",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}
