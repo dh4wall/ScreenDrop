@@ -3,13 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Circle, Share2, Zap, Shield, Users, ArrowRight, Star, Check } from 'lucide-react';
 import Image from 'next/image';
+import { authClient } from '@/lib/auth-client';
+import toast from 'react-hot-toast';
 
 const ScreenDropLanding = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState({});
 
   useEffect(() => {
-    const handleMouseMove = (e:any) => {
+    interface MousePosition {
+      x: number;
+      y: number;
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);
@@ -17,7 +24,22 @@ const ScreenDropLanding = () => {
   }, []);
 
   const handleSignIn = async () => {
-    console.log('Sign in with Google');
+    try {
+      return await authClient.signIn.social({ provider: "google" })
+    } catch (err) {
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'message' in err &&
+        typeof (err as { message?: unknown }).message === 'string' &&
+        (err as { message: string }).message.toLowerCase().includes('rate limit')
+      ) {
+        toast.error('Rate limit exceeded. Please wait before trying again.')
+        return
+      }
+      console.error(err)
+      toast.error('Sign-in failed. Please try again.')
+    }
   };
 
   const features = [
