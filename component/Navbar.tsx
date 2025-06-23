@@ -1,49 +1,64 @@
-'use client'
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { redirect, useRouter } from "next/navigation";
 
-import Link from 'next/link'
-import Image from 'next/image'
-import React from 'react'
-import { useRouter } from 'next/navigation'
-import { authClient } from '@/lib/auth-client'
-import toast from 'react-hot-toast'
-
+import { authClient } from "@/lib/auth-client";
+import ImageWithFallback from "./ImageWithFallback";
 const Navbar = () => {
-    const user = { id: '1234' } // Replace this with actual session logic later
-    const router = useRouter()
+  const router = useRouter();
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
 
-    const handleLogout = async () => {
-        try {
-            await authClient.signOut()
-            toast.success('Logged out successfully.')
-            router.push('/sign-in') // Redirect to the sign-in (landing) page
-        } catch (err) {
-            console.error(err)
-            toast.error('Logout failed. Please try again.')
-        }
-    }
+  return (
+    <header className="navbar">
+      <nav>
+        <Link href="/">
+          <Image
+            src="/assets/icons/logo.svg"
+            alt="SnapChat Logo"
+            width={32}
+            height={32}
+          />
+          <h1>SnapCast</h1>
+        </Link>
 
-    return (
-        <div className='text-3xl text-blue-800'>
-            <header className='navbar'>
-                <nav>
-                    <Link href="/">
-                        <Image src="/assets/icons/logo.svg" alt="logo image" height={32} width={32}></Image>
-                        <h1><span className='text-blue-500 font-weight-200 text-2xl'>Screen</span><span className='text-2xl font-weight-200 text-purple-500'>Drop</span></h1>
-                    </Link>
-                    {user && (
-                        <figure>
-                            <button onClick={() => router.push(`/profile/${user.id}`)}>
-                                <Image src="/assets/images/dummy.jpg" alt="profile image" width={36} height={36} className='rounded-full' />
-                            </button>
-                            <button onClick={handleLogout}>
-                                <Image src="/assets/icons/logout.svg" height={24} width={24} alt="logout image" className='rotate-180' />
-                            </button>
-                        </figure>
-                    )}
-                </nav>
-            </header>
-        </div>
-    )
-}
+        {user && (
+          <figure>
+            <button onClick={() => router.push(`/profile/${session?.user.id}`)}>
+              <ImageWithFallback
+                src={session?.user.image ?? ""}
+                alt="User"
+                width={36}
+                height={36}
+                className="rounded-full aspect-square"
+              />
+            </button>
+            <button
+              onClick={async () => {
+                return await authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      redirect("/sign-in");
+                    },
+                  },
+                });
+              }}
+              className="cursor-pointer"
+            >
+              <Image
+                src="/assets/icons/logout.svg"
+                alt="logout"
+                width={24}
+                height={24}
+                className="rotate-180"
+              />
+            </button>
+          </figure>
+        )}
+      </nav>
+    </header>
+  );
+};
 
-export default Navbar
+export default Navbar;

@@ -1,21 +1,49 @@
-import Header from '@/component/Header';
-import VideoCard from '@/component/VideoCard';
-import { dummyCards } from '@/constants';
-import React from 'react'
+import { redirect } from "next/navigation";
 
-const page =async ({params}:ParamsWithSearch) => {
-  const {id}=await params;
+import { getAllVideosByUser } from "@/lib/actions/video";
+import { EmptyState, SharedHeader, VideoCard } from "@/component";
+
+const ProfilePage = async ({ params, searchParams }: ParamsWithSearch) => {
+  const { id } = await params;
+  const { query, filter } = await searchParams;
+
+  const { user, videos } = await getAllVideosByUser(id, query, filter);
+  if (!user) redirect("/404");
 
   return (
-    <div className=' wrapper page'>
-      <Header subHeader='fruitchinousamurai ' title="dh4wall" />
-      <div className='text-2xl font-karla' >the id is: {id}</div>
-      <section className='video-grid'>
-        {dummyCards.map((card)=>
-      <VideoCard key={card.id} {... card}></VideoCard>)}
-      </section>
-    </div>
-  )
-}
+    <main className="wrapper page">
+      <SharedHeader
+        subHeader={user?.email}
+        title={user?.name}
+        userImg={user?.image ?? ""}
+      />
 
-export default page
+      {videos?.length > 0 ? (
+        <section className="video-grid">
+          {videos.map(({ video }) => (
+            <VideoCard
+              key={video.id}
+              id={video.videoId}
+              title={video.title}
+              thumbnail={video.thumbnailUrl}
+              createdAt={video.createdAt}
+              userImg={user.image ?? ""}
+              username={user.name ?? "Guest"}
+              views={video.views}
+              visibility={video.visibility}
+              duration={video.duration}
+            />
+          ))}
+        </section>
+      ) : (
+        <EmptyState
+          icon="/assets/icons/video.svg"
+          title="No Videos Available Yet"
+          description="Video will show up here once you upload them."
+        />
+      )}
+    </main>
+  );
+};
+
+export default ProfilePage;
