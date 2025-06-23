@@ -4,11 +4,22 @@ import { authClient } from '@/lib/auth-client'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import toast from 'react-hot-toast'
 
 const page = () => {
-  const handleSignIn= async()=>{
-      return authClient.signIn.social({provider:"google"})
+  const handleSignIn = async () => {
+  try {
+    return await authClient.signIn.social({ provider: "google" })
+  } catch (err: any) {
+    if (err.message?.toLowerCase().includes('rate limit')) {
+      toast.error('Rate limit exceeded. Please wait before trying again.')
+      return
+    }
+    console.error(err)
+    toast.error('Sign-in failed. Please try again.')
   }
+  }
+  
   return (
     <main className='sign-in'>
       <aside className='testimonial'>

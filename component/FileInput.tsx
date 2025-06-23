@@ -1,11 +1,52 @@
-import React from 'react'
+import Image from "next/image";
+import React from "react";
 
-const FileInput = () => {
+const FileInput = ({
+  id,
+  label,
+  accept,
+  file,
+  previewUrl,
+  inputRef,
+  onChange,
+  onReset,
+  type,
+}: FileInputProps) => {
   return (
-    <div>
-      input file
-    </div>
-  )
-}
+    <section className="file-input">
+      <label htmlFor={id}>{label}</label>
+      <input
+        type="file"
+        id={id}
+        accept={accept}
+        ref={inputRef}
+        hidden
+        onChange={onChange}
+      />
+      {!previewUrl ? (
+        <figure onClick={()=>inputRef.current?.click()}>
+          <Image
+            src="/assets/icons/upload.svg"
+            alt="upload"
+            height={24}
+            width={24}
+          />
+          <p>Click to upload your {id}</p>
+        </figure>
+      ) : (
+        <div>
+          {type==="video"?
+            <video src={previewUrl} controls></video>
+            :<Image src={previewUrl} alt="image" fill />
+          }
+          <button type="button" onClick={onReset}>
+            <Image src="/assets/icons/close.svg" alt="close" height={16} width={16}/>
+          </button>
+          <p>{file?.name}</p>
+        </div>
+      )}
+    </section>
+  );
+};
 
-export default FileInput
+export default FileInput;
