@@ -14,13 +14,13 @@ const Navbar = () => {
     <header className="navbar">
       <nav>
         <Link href="/">
-          <Image
-            src="/assets/icons/logo.svg"
-            alt="SnapChat Logo"
-            width={32}
-            height={32}
-          />
-          <h1>SnapCast</h1>
+          
+          <Image src="/assets/icons/logo.svg" alt="logo" height={40} width={40} />
+          <span className="text-2xl font-bold">
+            <span className="text-blue-400">Screen</span>
+            <span className="text-purple-400">Drop</span>
+          </span>
+                 
         </Link>
 
         {user && (
